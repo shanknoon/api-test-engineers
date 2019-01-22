@@ -12,26 +12,6 @@ const Promise     = require('bluebird'),
     request     = Promise.promisify(require("request")),
     _           = require('lodash');
 
-function sendErrorDetail(res, response) {
-
-    //console.log('sendErrorDetail '+JSON.stringify(res)+':::'+code+':::'+JSON.stringify(errorMsg));
-    return res.status(response.code).json({
-        errorCode: response.code,
-        errorMessage: response.message
-    });
-}
-
-function getArgOrNull(req, param) {
-    if (req) {
-        if (req.body && req.body[param]) {
-            return req.body[param];
-        } else if (req.query && req.query[param]) {
-            return req.query[param];
-        }
-    }
-    return null;
-}
-
 function assert200ResponseCode(response, res){
     
     return new Promise(function(resolve) {
@@ -51,23 +31,6 @@ function assert200ResponseCode(response, res){
                 code: http.STATUS_CODES[response[0].statusCode],
                 message: response[1]
             });
-            // resolve([
-            //     {
-            //       "name": "milk",
-            //       "price": 2,
-            //       "quantity": 1
-            //     },
-            //     {
-            //         "name": "ice cream",
-            //         "price": 5,
-            //         "quantity": 1
-            //       },
-            //       {
-            //         "name": "cake",
-            //         "price": 4,
-            //         "quantity": 1
-            //       }
-            //   ]);
         } else{
             if(response[1]){
                 result = (typeof response[1] === 'object') ? response[1] : JSON.parse(response[1]);

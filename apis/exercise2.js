@@ -23,12 +23,98 @@ function getArgOrNull(req, param) {
     return null;
 }
 
+function sortByRecommend(resultProducts) {
+
+    return new Promise(function(resolve) {
+
+    console.log('sortByRecommend() called');
+
+    //const finalUrl = 'http://dev-wooliesx-recruitment.azurewebsites.net/api/resource/products?token=ABdrF-HEaiQJ40WPRi-Y1txJ84jVfpkN9A%3A1543085147104';
+    let finalUrl = process.env.TARGET_URL + '/api/resource/shopperHistory?token=' + process.env.TOKEN;
+    
+    const options = {
+        method: 'GET',
+        url: finalUrl,
+        timeout: 30000,
+        headers: {
+            'cache-control': 'no-cache',
+            'accept': 'application/json',
+            'content-type': 'application/json'
+        }
+    };
+
+    let decorator = function(arrProduct){
+
+        console.log('decorator.result = ', arrProduct);
+        
+        return new Promise(function(resolve){
+
+            let sortProducts = [];
+
+            _.each(arrProduct, function (item) {
+                _.each(item.products, function (product) {
+                    sortProducts.push(product);
+                });
+            });
+            
+            console.log(sortProducts);
+
+            var formatted_data = _(sortProducts)
+                .groupBy('name')
+                .map((v, k) => ({
+                    name: k,
+                    quantity: _.sumBy(v, 'quantity')
+                })).value(); 
+
+            sortProducts = [];
+
+            resultProducts.forEach(element => {
+
+                var obj = _.find(formatted_data, function(o) { return o.name === element.name; });
+                
+                if(obj){
+                    element.quantity = obj.quantity;
+                }
+                    sortProducts.push(element);
+            });
+            
+            sortProducts = _.orderBy(sortProducts, ['quantity'], ['desc']);
+
+
+            /*sortProducts = _.groupBy(sortProducts, function(product) {
+            return product.name;
+            });*/
+
+            console.log(sortProducts);
+
+            resolve(sortProducts);
+        });
+    };
+
+    console.log('options = ', options);
+
+    request(options)
+        .then(function(result){
+            return assert200ResponseCode(result, res);
+        })
+        .then(decorator)
+        .then(function(result){
+            resolve();
+        })
+        .catch(
+            function(error){
+                resolve();
+            }
+        )
+        });
+}
+
 function assert200ResponseCode(response, res){
     
     return new Promise(function(resolve) {
-            
-        console.log('assert200ResponseCode.response[0].statusCode = ', response[0].statusCode);
-        console.log('assert200ResponseCode.response[1] = ', response[1]);
+
+        console.log('assert200ResponseCode() called = ', response[1]);
+        console.log('assert200ResponseCode() called = ', response[0].statusCode);
 
         let result;
 
@@ -42,23 +128,6 @@ function assert200ResponseCode(response, res){
                 code: http.STATUS_CODES[response[0].statusCode],
                 message: response[1]
             });
-            // resolve([
-            //     {
-            //       "name": "milk",
-            //       "price": 2,
-            //       "quantity": 1
-            //     },
-            //     {
-            //         "name": "ice cream",
-            //         "price": 5,
-            //         "quantity": 1
-            //       },
-            //       {
-            //         "name": "cake",
-            //         "price": 4,
-            //         "quantity": 1
-            //       }
-            //   ]);
         } else{
             if(response[1]){
                 result = (typeof response[1] === 'object') ? response[1] : JSON.parse(response[1]);
@@ -93,9 +162,6 @@ module.exports = {
 
         //const finalUrl = 'http://dev-wooliesx-recruitment.azurewebsites.net/api/resource/products?token=ABdrF-HEaiQJ40WPRi-Y1txJ84jVfpkN9A%3A1543085147104';
         let finalUrl = process.env.TARGET_URL + '/api/resource/products?token=' + process.env.TOKEN;
-        if(sortOption === 'recommended'){
-            finalUrl = process.env.TARGET_URL + '/api/ressource/shopperHistory?token=' + process.env.TOKEN;
-        }
         
         const options = {
             method: 'GET',
@@ -116,25 +182,7 @@ module.exports = {
 
                 let arrProducts = [];
 
-                if(result && sortOption === 'recommended'){
-                    // result = [
-                    //     {
-                    //       "customerId": 0,
-                    //       "products": [
-                    //         {
-                    //           "name": "string",
-                    //           "price": 0,
-                    //           "quantity": 0
-                    //         }
-                    //       ]
-                    //     }
-                    //   ];
-
-                    if(Array.isArray(result) && result.length > 0)
-                    {
-                        arrProducts = result[0].products;
-                    }
-                } else if(result) {
+                if(result) {
                     
                     arrProducts = result;
 
@@ -161,9 +209,19 @@ module.exports = {
 
         request(options)
             .then(function(result){
+                console.log('result123122 = ', result);
                 return assert200ResponseCode(result, res);
             })
             .then(decorator)
+            .then(function(result){
+                if(sortOption === 'recommended')
+                {
+                    return sortByRecommend(result);
+                }
+                else{
+                    return result;
+                }
+            })
             .then(function(result){
                 res.status(200).json(result);
             })
