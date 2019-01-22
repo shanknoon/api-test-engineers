@@ -63,7 +63,8 @@ module.exports = {
             method: 'POST',
             url: finalUrl,
             timeout: 30000,
-            body: req.body, 
+            body: req.body,
+            json: true,
             headers: {
                 'cache-control': 'no-cache',
                 'accept': 'application/json',
@@ -73,7 +74,7 @@ module.exports = {
 
         let decorator = function(result){
 
-            //console.log('decorator.result = ', result);
+            console.log('decorator.result = ', result);
             
             return new Promise(function(resolve){
 
