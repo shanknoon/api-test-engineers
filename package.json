@@ -1,0 +1,30 @@
+{
+  "name": "my-node-app",
+  "version": "1.0.0",
+  "description": "Test Api Engineers API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node -r dotenv/config app.js",
+    "test": "mocha"
+  },
+  "keywords": [
+    "exercise",
+    "apiEngineers",
+    "test"
+  ],
+  "author": "Sankara Narayanan",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^2.10.2",
+    "body-parser": "^1.18.3",
+    "chai": "^4.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "http": "0.0.0",
+    "lodash": "^4.17.11",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.9",
+    "request": "^2.88.0"
+  }
+}
