@@ -13,7 +13,7 @@ router.get('/user', exercise1.getUserInfo);
 // Sort the products by sortOption 
 router.get('/sort', exercise2.sortProducts);
 //Calculate Trolley total
-router.post('/trolleyCalculator', exercise3.trolleyCalculator)
+router.post('/trolleyTotal', exercise3.trolleyCalculator);
 
 router.use((req, res, next) => {
     //let error = new Error();

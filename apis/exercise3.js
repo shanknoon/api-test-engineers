@@ -15,9 +15,6 @@ const Promise     = require('bluebird'),
 function assert200ResponseCode(response, res){
     
     return new Promise(function(resolve) {
-            
-        console.log('assert200ResponseCode.response[0].statusCode = ', response[0].statusCode);
-        console.log('assert200ResponseCode.response[1] = ', response[1]);
 
         let result;
 
@@ -47,7 +44,7 @@ module.exports = {
 
 	trolleyCalculator: function trolleyCalculator(req, res, next) {
 
-        console.log('trolleyCalculator() called');
+        //console.log('trolleyCalculator() called');
 
         if(!req.body){
             res.status(400).json({
@@ -73,8 +70,6 @@ module.exports = {
         };
 
         let decorator = function(result){
-
-            console.log('decorator.result = ', result);
             
             return new Promise(function(resolve){
 
@@ -83,7 +78,7 @@ module.exports = {
             });
         };
 
-        console.log('options = ', options);
+        console.log('options = ', JSON.stringify(options));
 
         request(options)
             .then(function(result){

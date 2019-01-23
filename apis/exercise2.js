@@ -23,11 +23,11 @@ function getArgOrNull(req, param) {
     return null;
 }
 
-function sortByRecommend(resultProducts) {
+function sortByRecommend(resultProducts, res) {
 
     return new Promise(function(resolve) {
 
-    console.log('sortByRecommend() called');
+    //console.log('sortByRecommend() called');
 
     //const finalUrl = 'http://dev-wooliesx-recruitment.azurewebsites.net/api/resource/products?token=ABdrF-HEaiQJ40WPRi-Y1txJ84jVfpkN9A%3A1543085147104';
     let finalUrl = process.env.TARGET_URL + '/api/resource/shopperHistory?token=' + process.env.TOKEN;
@@ -45,7 +45,7 @@ function sortByRecommend(resultProducts) {
 
     let decorator = function(arrProduct){
 
-        console.log('decorator.result = ', arrProduct);
+        //console.log('decorator.result = ', arrProduct);
         
         return new Promise(function(resolve){
 
@@ -57,7 +57,7 @@ function sortByRecommend(resultProducts) {
                 });
             });
             
-            console.log(sortProducts);
+            //console.log(sortProducts);
 
             var formatted_data = _(sortProducts)
                 .groupBy('name')
@@ -85,7 +85,7 @@ function sortByRecommend(resultProducts) {
             return product.name;
             });*/
 
-            console.log(sortProducts);
+            //console.log(sortProducts);
 
             resolve(sortProducts);
         });
@@ -95,11 +95,12 @@ function sortByRecommend(resultProducts) {
 
     request(options)
         .then(function(result){
+            //console.log('result123 = ', result);
             return assert200ResponseCode(result, res);
         })
         .then(decorator)
         .then(function(result){
-            resolve();
+            resolve(result);
         })
         .catch(
             function(error){
@@ -112,9 +113,6 @@ function sortByRecommend(resultProducts) {
 function assert200ResponseCode(response, res){
     
     return new Promise(function(resolve) {
-
-        console.log('assert200ResponseCode() called = ', response[1]);
-        console.log('assert200ResponseCode() called = ', response[0].statusCode);
 
         let result;
 
@@ -144,7 +142,7 @@ module.exports = {
 
     sortProducts: function sortProducts(req, res, next) {
 
-        console.log('sortProducts() called');
+        //console.log('sortProducts() called');
         
         let sortOption = getArgOrNull(req, 'sortOption');
 
@@ -176,7 +174,7 @@ module.exports = {
 
         let decorator = function(result){
 
-            console.log('decorator.result = ', result);
+            //console.log('decorator.result = ', result);
             
             return new Promise(function(resolve){
 
@@ -205,7 +203,7 @@ module.exports = {
             });
         };
 
-        console.log('options = ', options);
+        //console.log('options = ', options);
 
         request(options)
             .then(function(result){
@@ -216,7 +214,7 @@ module.exports = {
             .then(function(result){
                 if(sortOption === 'recommended')
                 {
-                    return sortByRecommend(result);
+                    return sortByRecommend(result, res);
                 }
                 else{
                     return result;
